@@ -116,10 +116,17 @@ html, body {
   color: #fff;
   padding: 0.5rem 0;
   transition: font-size 0.2s;
+  
+}
+.nav a
+{
+    text-decoration: none;
 }
 
 .nav-item:hover {
   font-size: 1.05rem;
+  text-decoration: none;
+
 }
 
 /* =========================
