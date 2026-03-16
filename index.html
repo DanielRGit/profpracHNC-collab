@@ -6,76 +6,129 @@
 <title>Sidebar Layout</title>
 
 <link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
 </head>
 
 <body>
-
 <div class="page">
 
-<!-- HEADER -->
-<div class="header">
-<div class="header-inner">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo">Logo</div>
+      <form class="search-bar" onsubmit="return false;">
+        <input type="text" id="searchInput" placeholder="Search..." required>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </div>
 
-<div class="logo">Logo</div>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-inner">
 
-<form class="search-bar" action="search.php" method="GET">
-<input type="text" name="q" placeholder="Search..." required>
-<button type="submit">Search</button>
-</form>
+      <!-- NAV -->
+      <div class="nav">
+        <div class="nav-item">Home</div>
+        <div class="nav-item">About</div>
+        <div class="nav-item">Contact</div>
+      </div>
 
-</div>
-</div>
+      <!-- CONTENT -->
+      <div class="content" id="results">
+        <p>Loading data...</p>
+      </div>
 
+    </div>
+  </div>
 
-<!-- MAIN -->
-<div class="main">
-<div class="main-inner">
-
-<!-- NAV -->
-<div class="nav">
-<div class="nav-item">Home</div>
-<div class="nav-item">About</div>
-<div class="nav-item">Contact</div>
-</div>
-
-
-<!-- CONTENT -->
-<div class="content">
-
-<div class="section">
-
-<div class="section-header">
-<h1 class="section-title">Section Title</h1>
-<p class="section-subtitle">Optional subtitle text</p>
-</div>
-
-<div class="section-body">
-
-<div class="content-block">
-<p>Your content goes here.</p>
-</div>
-
-<div class="content-block">
-<p>Another content block.</p>
-</div>
-
-</div>
-</div>
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-inner">
+      <p class="footer-text">© 2026 Your Name</p>
+    </div>
+  </div>
 
 </div>
 
-</div>
-</div>
+<script>
+let data = [];
+let fuse;
+const resultsDiv = document.getElementById('results');
+const searchInput = document.getElementById('searchInput');
 
+// Load JSON
+fetch('data.json')
+  .then(res => res.json())
+  .then(json => {
+    data = json;
 
-<!-- FOOTER -->
-<div class="footer">
-<div class="footer-inner">
-<p class="footer-text">© 2026 Your Name</p>
-</div>
-</div>
+    // Initialize Fuse.js
+    fuse = new Fuse(data, {
+      keys: ['commonName', 'scientificName', 'group', 'habitat', 'lifecycle'],
+      threshold: 0.4,
+      ignoreLocation: true
+    });
 
-</div>
+    // Show all content initially
+    displayResults(data);
+  })
+  .catch(err => {
+    console.error("Error loading data.json:", err);
+    resultsDiv.innerHTML = "<p>Failed to load data.json</p>";
+  });
 
+// Display results function
+function displayResults(items, highlight = '') {
+  resultsDiv.innerHTML = '';
+  if (!items.length) {
+    resultsDiv.innerHTML = '<p>No results found.</p>';
+    return;
+  }
+
+  const regex = highlight ? new RegExp(`(${highlight})`, 'gi') : null;
+
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'content-block';
+
+    let commonName = item.commonName;
+    let scientificName = item.scientificName;
+    let group = item.group;
+    let habitat = item.habitat;
+    let lifecycle = item.lifecycle;
+
+    if (regex) {
+      commonName = commonName.replace(regex, '<mark>$1</mark>');
+      scientificName = scientificName.replace(regex, '<mark>$1</mark>');
+      group = group.replace(regex, '<mark>$1</mark>');
+      habitat = habitat.replace(regex, '<mark>$1</mark>');
+      lifecycle = lifecycle.replace(regex, '<mark>$1</mark>');
+    }
+
+    div.innerHTML = `
+      <h3>${commonName}</h3>
+      <p><strong>Scientific Name:</strong> ${scientificName}</p>
+      <p><strong>Group:</strong> ${group}</p>
+      <p><strong>Habitat:</strong> ${habitat}</p>
+      <p><strong>Lifecycle:</strong> ${lifecycle}</p>
+    `;
+
+    resultsDiv.appendChild(div);
+  });
+}
+
+// Search input listener
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.trim();
+  if (!query) {
+    displayResults(data);
+    return;
+  }
+
+  const results = fuse.search(query).map(r => r.item);
+  displayResults(results, query);
+});
+</script>
 </body>
 </html>
