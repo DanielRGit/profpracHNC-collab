@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plant Database</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant Database</title>
 
-<link rel="stylesheet" href="styles.css">
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
 </head>
 
 <body>
@@ -28,12 +28,13 @@
     <div class="main-inner">
 
       <!-- NAV -->
-    <div class="nav">
+      <div class="nav">
         <a href="homepage.html" class="nav-item">Home</a>
         <a href="index.html" class="nav-item">search</a>
         <a href="about.html" class="nav-item">About</a>
         <a href="contact.html" class="nav-item">Contact</a>
-    </div>
+      </div>
+
       <!-- CONTENT -->
       <div class="content" id="results">
         <p>Loading data...</p>
@@ -64,17 +65,17 @@ fetch('data.json')
   .then(json => {
     data = json;
 
-    // Initialize Fuse.js with all fields
+    // Initialize Fuse.js with stricter search and prioritize matches closer to the start of the string
     fuse = new Fuse(data, {
-      keys: [
-        'commonName', 'scientificName', 'group', 'habitat', 
-        'lifecycle', 'identification', 'heightSize', 'native', 'notes'
-      ],
-      threshold: 0.4,
+      keys: ['commonName', 'scientificName'], // Only search in commonName and scientificName fields
+      threshold: 0.2,                         // Set threshold to 0.2 to make search stricter
+      ignoreLocation: false,                  // Consider the location of matches in the string
+      location: 0,                            // Give priority to matches at the start of the string
+      distance: 100,                          // Maximum distance to match from the start (lower value = stricter)
       ignoreLocation: true
     });
 
-    displayResults(data); // show all initially
+    displayResults(data);  // Show all initially
   })
   .catch(err => {
     console.error("Error loading data.json:", err);
@@ -82,14 +83,12 @@ fetch('data.json')
   });
 
 // Display function
-function displayResults(items, highlight='') {
+function displayResults(items) {
   resultsDiv.innerHTML = '';
   if (!items.length) {
     resultsDiv.innerHTML = '<p>No results found.</p>';
     return;
   }
-
-  const regex = highlight ? new RegExp(`(${highlight})`, 'gi') : null;
 
   items.forEach(item => {
     const div = document.createElement('div');
@@ -110,7 +109,6 @@ function displayResults(items, highlight='') {
     let innerHTML = '';
     for (let key in fields) {
       let value = fields[key] || '';
-      if (regex) value = value.replace(regex, '<mark>$1</mark>');
       if (value) innerHTML += `<p><strong>${key}:</strong> ${value}</p>`;
     }
 
@@ -122,13 +120,16 @@ function displayResults(items, highlight='') {
 // Search listener
 searchInput.addEventListener('input', () => {
   const query = searchInput.value.trim();
+  
+  // If no query, display all results
   if (!query) {
-    displayResults(data);
+    displayResults(data);  // Display all data if the search input is empty
     return;
   }
 
+  // Perform a search using Fuse.js and display only the matching results from the first two fields
   const results = fuse.search(query).map(r => r.item);
-  displayResults(results, query);
+  displayResults(results);  // Only show matching results
 });
 </script>
 
