@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - My Site</title>
+  <link rel="stylesheet" href="base.css">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo">Contact us</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-inner">
+
+      <!-- NAV -->
+      <div class="nav">
+        <a href="homepage.html" class="nav-item">Home</a>
+        <a href="index.html" class="nav-item">Search</a>
+        <a href="about.html" class="nav-item">About</a>
+        <a href="contact.html" class="nav-item">Contact</a>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="content">
+        <div class="section">
+          <div class="section-header">
+            <h1 class="section-title">Contact Us</h1>
+            <p class="section-subtitle">Stay updated by leaving your email or send us a message!</p>
+          </div>
+
+          <div class="section-body">
+
+            <div class="content-block">
+              <h3>Subscribe for Updates</h3>
+              <form id="subscribeForm">
+                <input type="email" id="email" placeholder="Your email" required>
+                <button type="submit">Subscribe</button>
+              </form>
+              <p id="subscribeMessage" style="margin-top: 0.5rem; font-size: 0.9rem;"></p>
+            </div>
+
+            <div class="content-block">
+              <h3>Send a Message</h3>
+              <p>If you have questions, suggestions, or contributions, email us at <a href="mailto:info@yoursite.com">info@yoursite.com</a>.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-inner">
+      <p class="footer-text">© 2026 Your Name</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const form = document.getElementById('subscribeForm');
+const emailInput = document.getElementById('email');
+const message = document.getElementById('subscribeMessage');
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = emailInput.value.trim();
+
+  if (!email) return;
+
+  // Display success message
+  message.textContent = `Thank you! We'll send updates to ${email}.`;
+  emailInput.value = '';
+});
+</script>
+
+</body>
+</html>
