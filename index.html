@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search</title>
+
+  <link rel="stylesheet" href="base.css">
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+
+  <style>
+    .plant-image {
+      max-width: 200px;
+      display: block;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo">Plant database search</div>
+      <form class="search-bar" onsubmit="return false;">
+        <input type="text" id="searchInput" placeholder="Search plants..." required>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-inner">
+
+      <!-- NAV -->
+      <div class="nav">
+        <a href="homepage.html" class="nav-item">Home</a>
+        <a href="index.html" class="nav-item">Search</a>
+        <a href="about.html" class="nav-item">About</a>
+        <a href="contact.html" class="nav-item">Contact</a>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="content" id="results">
+        <p>Loading data...</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-inner">
+      <p class="footer-text">© 2026 Your Name</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Globals
+let data = [];
+let fuse;
+const resultsDiv = document.getElementById('results');
+const searchInput = document.getElementById('searchInput');
+
+// Load JSON
+fetch('data.json')
+  .then(res => res.json())
+  .then(json => {
+    data = json;
+
+    fuse = new Fuse(data, {
+      keys: ['commonName', 'scientificName'],
+      threshold: 0.2,
+      ignoreLocation: true
+    });
+
+    displayResults(data);
+  })
+  .catch(err => {
+    console.error("Error loading data.json:", err);
+    resultsDiv.innerHTML = "<p>Failed to load data.json</p>";
+  });
+
+// Display function
+function displayResults(items) {
+  resultsDiv.innerHTML = '';
+  if (!items.length) {
+    resultsDiv.innerHTML = '<p>No results found.</p>';
+    return;
+  }
+
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'content-block';
+
+    // ✅ Image handling from JSON
+    const imagePath = item.image ? `images/${item.image}` : '';
+
+    const fields = {
+      'Common Name': item.commonName,
+      'Scientific Name': item.scientificName,
+      'Group': item.group,
+      'Habitat': item.habitat,
+      'Lifecycle': item.lifecycle,
+      'Identification': item.identification,
+      'Height/Size': item.heightSize,
+      'Native?': item.native,
+      'Notes': item.notes
+    };
+
+    let innerHTML = '';
+
+    // ✅ Add image if it exists
+    if (imagePath) {
+      innerHTML += `<img src="${imagePath}" alt="${item.commonName}" class="plant-image" onerror="this.style.display='none'">`;
+    }
+
+    // Text fields
+    for (let key in fields) {
+      let value = fields[key] || '';
+      if (value) innerHTML += `<p><strong>${key}:</strong> ${value}</p>`;
+    }
+
+    div.innerHTML = `<h3>${item.commonName}</h3>` + innerHTML;
+    resultsDiv.appendChild(div);
+  });
+}
+
+// Search listener
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.trim();
+  
+  if (!query) {
+    displayResults(data);
+    return;
+  }
+
+  const results = fuse.search(query).map(r => r.item);
+  displayResults(results);
+});
+</script>
+
+</body>
+</html>
