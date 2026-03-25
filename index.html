@@ -75,7 +75,7 @@ fetch('data.json')
     data = json;
 
     fuse = new Fuse(data, {
-      keys: ['commonName', 'scientificName'],
+      keys: ['commonName', 'scientificName', 'group'],
       threshold: 0.2,
       ignoreLocation: true
     });
